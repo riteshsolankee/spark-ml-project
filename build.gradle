@@ -1,7 +1,14 @@
-plugins {
-    id 'java'
-    id 'com.github.johnrengelman.shadow' version '1.2.3'
+buildscript {
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+    dependencies {
+        classpath 'net.researchgate:gradle-release:2.3.5'
+    }
 }
+apply plugin: 'net.researchgate.release'
 
 group 'spark-ml-project'
 version '1.0-SNAPSHOT'
@@ -64,14 +71,6 @@ jar {
     }
     include{sourceSets.main.output.classesDir}
     zip64 true
-}
-
-shadowJar {
-    classifier = 'shadow'
-    append 'reference.conf'
-    dependencies {
-
-    }
 }
 
 idea {
