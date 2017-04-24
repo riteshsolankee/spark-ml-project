@@ -1,5 +1,5 @@
 # _Spark-Gradle-ml-project_
-A barebones project with scala, apache spark built using gradle. Spark-shell provides `spark` and `sc` variables pre-initialised, here I did the same using a *scala trait* that you can extend.
+A barebones project with scala, apache spark built using gradle. Spark-shell provides `spark` and `sc` variables pre-initialised, here I did the same using a *scala trait* that can be extend.
 
 ## Prerequisites
 - [Java](https://java.com/en/download/)
