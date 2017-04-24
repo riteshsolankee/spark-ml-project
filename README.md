@@ -1,4 +1,4 @@
-# _Spark-Gradle-Template_
+# _Spark-Gradle-ml-project_
 A barebones project with scala, apache spark built using gradle. Spark-shell provides `spark` and `sc` variables pre-initialised, here I did the same using a *scala trait* that you can extend.
 
 ## Prerequisites
@@ -93,5 +93,4 @@ Just import it into your favorite IDE as a gradle project. Tested with IntelliJ 
  
 ## Issues or Suggestions
 
-- Raise one on github
-- Send me a mail -> fahemad3+github @ gmail dot com (Remove the spaces and dot = .)
+
