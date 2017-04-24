@@ -17,8 +17,7 @@ object FlightData extends InitSpark{
 //    var flightData = sc.textFile("file:///Users/ritesh/Documents/DataScience/advanceBigData/Assignment1/2007.csv")
 
     val flightDF =
-      spark.read.option("header","true")
-        .csv("/Users/ritesh/Documents/DataScience/advanceBigData/Assignment1/2007.csv")
+      reader.csv("/Users/ritesh/Documents/DataScience/advanceBigData/Assignment1/2007.csv")
     var flightDelayDF =
       flightDF.select("Year","Month", "DayofMonth", "DayOfWeek",
         "FlightNum","ArrDelay", "DepDelay","Cancelled",
