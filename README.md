@@ -14,10 +14,9 @@ A barebones project with scala, apache spark built using gradle. Spark-shell pro
 ### Build
 `./gradlew clean build`
 ### Run
-`./gradlew run`
+-- Still working on it -- `./gradlew run`
 ### All Together
-`./gradlew clean run`
-
+-- Still working on it -- `./gradlew clean run`
 
 ## What the demo does?
 Take a look at *src->main->scala->template->spark* directory
