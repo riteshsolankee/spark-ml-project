@@ -9,7 +9,7 @@ A barebones project with scala, apache spark built using gradle. Spark-shell pro
 ## Build and Demo process
 
 ### Clone the Repo
-`git clone https://github.com/faizanahemad/spark-gradle-template.git`
+`git clone https://github.com/riteshsolankee/spark-ml-project.git`
 
 ### Build
 `./gradlew clean build`
