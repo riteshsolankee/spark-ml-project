@@ -20,7 +20,9 @@ object FlightData extends InitSpark{
       spark.read.option("header","true")
         .csv("/Users/ritesh/Documents/DataScience/advanceBigData/Assignment1/2007.csv")
     var flightDelayDF =
-      flightDF.select("Year","Month", "DayofMonth", "DayOfWeek", "FlightNum","ArrDelay", "DepDelay","Cancelled","CancellationCode", "Diverted")
+      flightDF.select("Year","Month", "DayofMonth", "DayOfWeek",
+        "FlightNum","ArrDelay", "DepDelay","Cancelled",
+        "CancellationCode", "Diverted")
 
 //    flightDelayDF.select("Year").distinct().show()
 //    flightDelayDF.select("Month").distinct().show()
@@ -46,7 +48,8 @@ object FlightData extends InitSpark{
     //Therefore Creating different DF fpr arrival and departure
     var arrivalDelayDF =
       flightDelayDF
-        .select("Year","Month", "DayofMonth", "DayOfWeek", "FlightNum","ArrDelay","Cancelled","CancellationCode", "Diverted")
+        .select("Year","Month", "DayofMonth", "DayOfWeek",
+          "FlightNum","ArrDelay","Cancelled","CancellationCode", "Diverted")
         .filter($"ArrDelay" =!= "NA")
     arrivalDelayDF = Util.castColumnTo(arrivalDelayDF, "ArrDelay", DoubleType)
     arrivalDelayDF =arrivalDelayDF.groupBy("DayOfWeek").agg(avg("ArrDelay").alias("ArrivalDelayAverage")).withColumnRenamed("DayOfWeek", "ArrDayOfWeek")
@@ -54,14 +57,18 @@ object FlightData extends InitSpark{
 
     var departureDelayDF =
       flightDelayDF
-        .select("Year","Month", "DayofMonth", "DayOfWeek", "FlightNum","DepDelay","Cancelled","CancellationCode", "Diverted")
+        .select("Year","Month", "DayofMonth", "DayOfWeek", "FlightNum",
+          "DepDelay","Cancelled","CancellationCode", "Diverted")
         .filter($"DepDelay" =!= "NA")
     departureDelayDF = Util.castColumnTo(departureDelayDF, "DepDelay", DoubleType)
     departureDelayDF = departureDelayDF.groupBy("DayOfWeek").agg(avg("DepDelay").alias("DepartureDelayAverage"))
 //    departureDelayDF.show
 
     val resultDF =
-      arrivalDelayDF.join(departureDelayDF, arrivalDelayDF("ArrDayOfWeek") === departureDelayDF("DayOfWeek")).orderBy("DayOfWeek")
+      arrivalDelayDF.join(
+        departureDelayDF,
+          arrivalDelayDF("ArrDayOfWeek") === departureDelayDF("DayOfWeek"))
+        .orderBy("DayOfWeek")
         .select("DayOfWeek", "ArrivalDelayAverage", "DepartureDelayAverage")
     resultDF.show
   }

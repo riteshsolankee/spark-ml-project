@@ -1,4 +1,4 @@
-package template.spark
+package com.template.spark
 
 import com.util.InitSpark
 import org.apache.spark.sql.functions._
