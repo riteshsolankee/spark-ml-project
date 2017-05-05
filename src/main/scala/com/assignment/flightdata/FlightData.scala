@@ -45,7 +45,7 @@ object FlightData extends InitSpark{
 //    flightDF.filter($"DepDelay" =!= "NA" && $"ArrDelay" === "NA").show
     //filtering all the records where the cancellation record is set to '1'
 
-    // ******* Actual Processing *****
+    // ******* Actual Processing Using DataFrame *****
     flightDelayDF = flightDelayDF.filter($"Cancelled" =!= "1")
     //There are records where 'Departure' delay  not null and  arrival delay is not applicable
     //Therefore Creating different DF for arrival and departure separately
@@ -74,10 +74,10 @@ object FlightData extends InitSpark{
         .orderBy("DayOfWeek")
         .select("DayOfWeek", "ArrivalDelayAverage", "DepartureDelayAverage")
     resultDF.show
-
+    // ******* End - Actual Processing Using DataFrame *****
 
     // ****** Using RDD *******
-    var flightArrivalAverage=
+    val flightArrivalAverage =
       flightRdd
         .map(row => {
           val strArray = row.toString.split(",")
@@ -107,5 +107,6 @@ object FlightData extends InitSpark{
         .collectAsMap()
 
     println("flightDepartureAverage :" + flightDepartureAverage)
+    // ****** End - Using RDD *******
   }
 }
