@@ -23,6 +23,8 @@ object FlightData extends InitSpark{
         "FlightNum","ArrDelay", "DepDelay","Cancelled",
         "CancellationCode", "Diverted")
 
+    var flightRdd = flightDelayDF.rdd
+    flightRdd.take(10).foreach(println)
 //    flightDelayDF.select("Year").distinct().show()
 //    flightDelayDF.select("Month").distinct().show()
 //    flightDelayDF.select("DayofMonth").distinct().show()
@@ -42,9 +44,11 @@ object FlightData extends InitSpark{
 //    flightDF.filter($"DepDelay" === "NA" && $"ArrDelay" =!= "NA").show
 //    flightDF.filter($"DepDelay" =!= "NA" && $"ArrDelay" === "NA").show
     //filtering all the records where the cancellation record is set to '1'
+
+    // ******* Actual Processing *****
     flightDelayDF = flightDelayDF.filter($"Cancelled" =!= "1")
     //There are records where 'Departure' delay  not null and  arrival delay is not applicable
-    //Therefore Creating different DF fpr arrival and departure
+    //Therefore Creating different DF for arrival and departure separately
     var arrivalDelayDF =
       flightDelayDF
         .select("Year","Month", "DayofMonth", "DayOfWeek",
@@ -70,5 +74,38 @@ object FlightData extends InitSpark{
         .orderBy("DayOfWeek")
         .select("DayOfWeek", "ArrivalDelayAverage", "DepartureDelayAverage")
     resultDF.show
+
+
+    // ****** Using RDD *******
+    var flightArrivalAverage=
+      flightRdd
+        .map(row => {
+          val strArray = row.toString.split(",")
+          (strArray(3), strArray(5))
+        })
+        .filter(elmt => !elmt._2.equals("NA"))
+        .map(elmt => (elmt._1.toString(), elmt._2.toString().toInt))
+        .mapValues((_, 1))
+        .reduceByKey((x, y) => (x._1 + y._1, x._2 + y._2))
+        .mapValues{ case (sum, count) => (1.0 * sum) / count }
+        .collectAsMap()
+
+    println("flightArrivalAverage :" + flightArrivalAverage)
+
+
+    var flightDepartureAverage=
+      flightRdd
+        .map(row => {
+          val strArray = row.toString.split(",")
+          (strArray(3), strArray(6))
+        })
+        .filter(elmt => !elmt._2.equals("NA"))
+        .map(elmt => (elmt._1.toString(), elmt._2.toString().toInt))
+        .mapValues((_, 1))
+        .reduceByKey((x, y) => (x._1 + y._1, x._2 + y._2))
+        .mapValues{ case (sum, count) => (1.0 * sum) / count }
+        .collectAsMap()
+
+    println("flightDepartureAverage :" + flightDepartureAverage)
   }
 }
