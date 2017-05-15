@@ -22,12 +22,12 @@ object FlightDelayPercentage extends InitSpark {
     // Take only DepartureDelay, Origin and Cancelled data
     var delayDF = flightDF.select( "DepDelay","Origin","Cancelled")
 
-
-    delayDF = castColumnTo(delayDF, "DepDelay", DoubleType)
-
+    
     //Filter NA and cancelled records
     delayDF = delayDF.filter($"Cancelled" !== "1")
-    delayDF = delayDF.filter($"ArrDelay" !== "NA")
+    delayDF = delayDF.filter($"DepDelay" !== "NA")
+
+    delayDF = castColumnTo(delayDF, "DepDelay", DoubleType)
 
     // Get delayed departure as separate column with values as '1' - dealyed , '0' - not delayed
     delayDF = delayDF.withColumn("isDepartureDelayed", delayDF("DepDelay") > 0.0)
