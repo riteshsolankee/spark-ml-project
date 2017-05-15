@@ -32,9 +32,106 @@ object Main extends InitSpark {
 //      spark.read.option("header","true")
 //        .csv("/Users/ritesh/Documents/DataScience/advanceBigData/mcdonald_menu.csv")
 //    macdonald.show(false)
-    findMaxAndAverage
+//    findMaxAndAverage
+  // create Amit data
 
+//    createDataFrame
+
+    createFlightDataFrame
     close
+  }
+
+  def createFlightDataFrame = {
+    var temp = sc.textFile("file:////Users/ritesh/Documents/DataScience/advanceBigData/Assignment1/2007.csv")
+    temp.take(10).foreach(println)
+
+    temp = temp.mapPartitionsWithIndex { (idx, iter) => if (idx == 0) iter.drop(1) else iter }
+
+    val schemaString = "Year:string,Month:string,DayofMonth:string,DayOfWeek:string,DepTime:string,CRSDepTime:string," +
+      "ArrTime:string,CRSArrTime:string,UniqueCarrier:string,FlightNum:string,TailNum:string,ActualElapsedTime:string," +
+      "CRSElapsedTime:string,AirTime:string,ArrDelay:string,DepDelay:string,Origin:string,Dest:string,Distance:string," +
+      "TaxiIn:string,TaxiOut:string,Cancelled:string,CancellationCode:string,Diverted:string,CarrierDelay:string," +
+      "WeatherDelay:string,NASDelay:string,SecurityDelay:string,LateAircraftDelay:string"
+
+    import org.apache.spark.sql.types._
+
+
+    val schema =
+      StructType(
+        schemaString.split(",").map(fieldName => StructField(fieldName.split(":")(0),
+          Util.getFieldTypeInSchema(fieldName.split(":")(1)), true)))
+
+    print("==>" + schema)
+    import org.apache.spark.sql._
+
+    val rowRDDx = temp.map(p => {
+      var list: mutable.Seq[Any] = collection.mutable.Seq.empty[Any]
+      var index = 0
+      var tokens = p.split(",")
+      tokens.foreach(value => {
+        var valType = schema.fields(index).dataType
+        var returnVal: Any = null
+        valType match {
+          case IntegerType => returnVal = value.toString.toInt
+          case DoubleType => returnVal = value.toString.toDouble
+          case LongType => returnVal = value.toString.toLong
+          case FloatType => returnVal = value.toString.toFloat
+          case ByteType => returnVal = value.toString.toByte
+          case StringType => returnVal = value.toString
+          case TimestampType => returnVal = value.toString
+        }
+        list = list :+ returnVal
+        index += 1
+      })
+      Row.fromSeq(list)
+    })
+    val df = sqlContext.createDataFrame(rowRDDx, schema)
+
+    df.show()
+  }
+
+  def createDataFrame = {
+    var temp = sc.textFile("file:///Users/ritesh/Documents/DataScience/advanceBigData/amit/drinks.csv")
+    temp.take(10).foreach(println)
+
+    temp = temp.mapPartitionsWithIndex { (idx, iter) => if (idx == 0) iter.drop(1) else iter }
+    val schemaString = "1:string,2:string,3:string,4:string,5:string"
+
+    import org.apache.spark.sql.types._
+
+
+    val schema =
+      StructType(
+        schemaString.split(",").map(fieldName => StructField(fieldName.split(":")(0),
+          Util.getFieldTypeInSchema(fieldName.split(":")(1)), true)))
+
+    print("==>" + schema)
+    import org.apache.spark.sql._
+
+    val rowRDDx = temp.map(p => {
+      var list: mutable.Seq[Any] = collection.mutable.Seq.empty[Any]
+      var index = 0
+      var tokens = p.split(",")
+      tokens.foreach(value => {
+        var valType = schema.fields(index).dataType
+        var returnVal: Any = null
+        valType match {
+          case IntegerType => returnVal = if(value != "NA") value.toString.toInt else Integer.MIN_VALUE
+          case DoubleType => returnVal = value.toString.toDouble
+          case LongType => returnVal = value.toString.toLong
+          case FloatType => returnVal = value.toString.toFloat
+          case ByteType => returnVal = value.toString.toByte
+          case StringType => returnVal = value.toString
+          case TimestampType => returnVal = value.toString
+        }
+        list = list :+ returnVal
+        index += 1
+      })
+      Row.fromSeq(list)
+    })
+    val df = sqlContext.createDataFrame(rowRDDx, schema)
+
+    df.show()
   }
 
   /**

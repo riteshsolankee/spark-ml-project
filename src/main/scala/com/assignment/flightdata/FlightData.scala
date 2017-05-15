@@ -3,7 +3,7 @@ package com.assignment.flightdata
 import com.util.InitSpark
 import org.apache.spark.sql.functions._
 import com.util.Util
-import org.apache.spark.sql.types.DoubleType
+import org.apache.spark.sql.types.{DoubleType, IntegerType}
 
 
 /**
@@ -16,26 +16,52 @@ object FlightData extends InitSpark{
 
 //    var flightData = sc.textFile("file:///Users/ritesh/Documents/DataScience/advanceBigData/Assignment1/2007.csv")
 
+    val threshold = 50.00
     val flightDF =
       reader.csv("/Users/ritesh/Documents/DataScience/advanceBigData/Assignment1/2007.csv")
-    var flightDelayDF =
-      flightDF.select("Year","Month", "DayofMonth", "DayOfWeek",
-        "FlightNum","ArrDelay", "DepDelay","Cancelled",
+    flightDF.show()
+
+    // Start - delaypercentage calculation
+    var delayDF = flightDF.select( "DepDelay","Origin","Cancelled")
+
+    delayDF = Util.castColumnTo(delayDF, "DepDelay", DoubleType)
+
+    delayDF = delayDF.filter($"Cancelled" !== "1")
+    delayDF = delayDF.filter($"ArrDelay" !== "NA")
+
+    delayDF = delayDF.withColumn("isDepartureDelayed", delayDF("DepDelay") > 0.0)
+
+    delayDF = Util.castColumnTo(delayDF, "isDepartureDelayed", IntegerType)
+
+    delayDF.show()
+    val resultDF =
+      delayDF.groupBy("Origin")
+        .agg(((sum("isDepartureDelayed")/count("isDepartureDelayed"))*100).alias("percentageDelay"))
+        .filter($"percentageDelay" > lit(threshold))
+
+    resultDF.show()
+    // End - Delay percentage calculation
+    
+   /* var flightDelayDF =
+      flightDF.select(
+        "Year","Month", "DayofMonth", "DayOfWeek",
+        "FlightNum","ArrDelay", "DepDelay","Origin","Cancelled",
         "CancellationCode", "Diverted")
 
-    var flightRdd = flightDelayDF.rdd
+
+    val flightRdd = flightDelayDF.rdd
     flightRdd.take(10).foreach(println)
 //    flightDelayDF.select("Year").distinct().show()
 //    flightDelayDF.select("Month").distinct().show()
 //    flightDelayDF.select("DayofMonth").distinct().show()
 //    flightDelayDF.select("DayOfWeek").distinct().show()
-//    flightDelayDF.select("CancellationCode").distinct().show()
+    println("Cancelled record Count: " + flightDelayDF.filter($"Cancelled" === "1").count())
 //    println(flightDelayDF.filter($"FlightNum" === "NA").count())
 //    println("Total Count of ArrDelay column:- " + flightDelayDF.count())
 //    println("Total Count of DepDelay column:- " + flightDelayDF.count())
 
-//    println("Count of NA in ArrDelay column:- " + flightDelayDF.filter($"ArrDelay" === "NA").count())
-//    println("Count of NA in DepDelay column:- " + flightDelayDF.filter($"DepDelay" === "NA").count())
+    println("Count of NA in ArrDelay column:- " + flightDelayDF.filter($"ArrDelay" === "NA").count())
+    println("Count of NA in DepDelay column:- " + flightDelayDF.filter($"DepDelay" === "NA").count())
 //    println("Count of NA in both DepDelay & ArrDelay columns:- " + flightDelayDF.filter($"DepDelay" === "NA" && $"ArrDelay" === "NA").count())
 //    flightDelayDF.show
 //    println("Count of NA in both DepDelay & ArrDelay columns:- " + flightDF.filter($"DepDelay" === "NA" && $"ArrDelay" === "NA").count())
@@ -45,8 +71,8 @@ object FlightData extends InitSpark{
 //    flightDF.filter($"DepDelay" =!= "NA" && $"ArrDelay" === "NA").show
 
 
-    // ******* Actual Processing Using DataFrame *****
-    
+    // ******* Start - Actual Processing Using DataFrame *****
+
     //filtering all the records where the cancellation record is set to '1'
     flightDelayDF = flightDelayDF.filter($"Cancelled" =!= "1")
     //There are records where 'Departure' delay  not null and  arrival delay is not applicable
@@ -78,7 +104,7 @@ object FlightData extends InitSpark{
     resultDF.show
     // ******* End - Actual Processing Using DataFrame *****
 
-    // ****** Using RDD *******
+    // ****** Start - Using RDD *******
     val flightArrivalAverage =
       flightRdd
         .map(row => {
@@ -108,7 +134,7 @@ object FlightData extends InitSpark{
         .mapValues{ case (sum, count) => (1.0 * sum) / count }
         .collectAsMap()
 
-    println("flightDepartureAverage :" + flightDepartureAverage)
+    println("flightDepartureAverage :" + flightDepartureAverage)*/
     // ****** End - Using RDD *******
   }
 }
