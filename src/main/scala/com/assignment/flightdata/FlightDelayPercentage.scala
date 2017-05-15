@@ -22,7 +22,6 @@ object FlightDelayPercentage extends InitSpark {
     // Take only DepartureDelay, Origin and Cancelled data
     var delayDF = flightDF.select( "DepDelay","Origin","Cancelled")
 
-    
     //Filter NA and cancelled records
     delayDF = delayDF.filter($"Cancelled" !== "1")
     delayDF = delayDF.filter($"DepDelay" !== "NA")
@@ -65,8 +64,7 @@ object FlightDelayPercentage extends InitSpark {
       "WeatherDelay:string,NASDelay:string,SecurityDelay:string,LateAircraftDelay:string"
 
     import org.apache.spark.sql.types._
-
-
+    
     val schema =
       StructType(
         schemaString.split(",").map(fieldName => StructField(fieldName.split(":")(0),
