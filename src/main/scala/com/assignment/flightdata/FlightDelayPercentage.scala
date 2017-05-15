@@ -19,7 +19,7 @@ object FlightDelayPercentage extends InitSpark {
     val flightDF = createFlightDataFrame("Users/ritesh/Documents/DataScience/advanceBigData/Assignment1/2007.csv")
     val threshold = 50.00
 
-    // Take only DepartureDelay, Origin and Canceled data
+    // Take only DepartureDelay, Origin and Cancelled data
     var delayDF = flightDF.select( "DepDelay","Origin","Cancelled")
 
 
@@ -57,7 +57,7 @@ object FlightDelayPercentage extends InitSpark {
     // Remove header
     temp = temp.mapPartitionsWithIndex { (idx, iter) => if (idx == 0) iter.drop(1) else iter }
 
-    // Define column name and it datatype
+    // Define column name and its datatype
     val schemaString = "Year:string,Month:string,DayofMonth:string,DayOfWeek:string,DepTime:string,CRSDepTime:string," +
       "ArrTime:string,CRSArrTime:string,UniqueCarrier:string,FlightNum:string,TailNum:string,ActualElapsedTime:string," +
       "CRSElapsedTime:string,AirTime:string,ArrDelay:string,DepDelay:string,Origin:string,Dest:string,Distance:string," +

@@ -41,7 +41,7 @@ object FlightData extends InitSpark{
 
     resultDF.show()
     // End - Delay percentage calculation
-    
+
    /* var flightDelayDF =
       flightDF.select(
         "Year","Month", "DayofMonth", "DayOfWeek",
