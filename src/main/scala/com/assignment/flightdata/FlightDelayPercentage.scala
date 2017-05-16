@@ -17,6 +17,7 @@ object FlightDelayPercentage extends InitSpark {
 
     //Create data frame from CSV file
     val flightDF = createFlightDataFrame("Users/ritesh/Documents/DataScience/advanceBigData/Assignment1/2007.csv")
+//    val threshold = args(0).toDouble
     val threshold = 50.00
 
     // Take only DepartureDelay, Origin and Cancelled data
@@ -43,7 +44,6 @@ object FlightDelayPercentage extends InitSpark {
 
   }
 
-
   /**
     * Reads CSV file and create Dataframe
     *
@@ -64,7 +64,7 @@ object FlightDelayPercentage extends InitSpark {
       "WeatherDelay:string,NASDelay:string,SecurityDelay:string,LateAircraftDelay:string"
 
     import org.apache.spark.sql.types._
-    
+
     val schema =
       StructType(
         schemaString.split(",").map(fieldName => StructField(fieldName.split(":")(0),
