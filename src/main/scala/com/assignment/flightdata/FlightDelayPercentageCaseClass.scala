@@ -2,7 +2,7 @@ package com.assignment.flightdata
 
 import com.util.InitSpark
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.functions.{count, lit, sum}
+import org.apache.spark.sql.functions.{count, lit, sum, when,col}
 import org.apache.spark.sql.types.{DataType, DoubleType, IntegerType}
 
 /**
@@ -16,44 +16,39 @@ object FlightDelayPercentageCaseClass extends InitSpark {
     import spark.implicits._
 
     val threshold = 50.00
-    var delayDF = createSubsetDataFrame("Users/ritesh/Documents/DataScience/advanceBigData/Assignment1/2007.csv")
-    delayDF.show()
-    //Filter NA and cancelled records
-    delayDF = delayDF.filter($"Cancelled" !== "1")
-    delayDF = delayDF.filter($"DepDelay" !== "NA")
-
-    delayDF = castColumnTo(delayDF, "DepDelay", DoubleType)
-    // Get delayed departure as separate column with values as '1' - dealyed , '0' - not delayed
-    delayDF = delayDF.withColumn("isDepartureDelayed", delayDF("DepDelay") > 0.0)
-    delayDF = castColumnTo(delayDF, "isDepartureDelayed", IntegerType)
-
-    delayDF.show()
-    //Calculate delay percentage grouped by origin
-    val resultDF =
-      delayDF.groupBy("Origin")
-        .agg(((sum("isDepartureDelayed")/count("isDepartureDelayed"))*100).alias("percentageDelay"))
-        .filter($"percentageDelay" > lit(threshold))
-
-    resultDF.show()
-  }
-
-  /**
-    *
-    * @param path
-    * @return
-    */
-  def createSubsetDataFrame(path : String) : DataFrame = {
-    var data = sc.textFile("file:///" + path)
+    var data = sc.textFile("file:///Users/ritesh/Documents/DataScience/advanceBigData/Assignment1/2007.csv")
     data.take(10).foreach(println)
 
     // Remove header
     data = data.mapPartitionsWithIndex { (idx, iter) => if (idx == 0) iter.drop(1) else iter }
 
-    import sqlContext.implicits._
-    data.map(str => {
-      val strArr = str.split(",")
-      DepartureDelay(strArr(15), strArr(16), strArr(21))
-    }).toDF("DepDelay", "Origin", "Cancelled")
+    var delayDF =
+      data.map(str => {
+        val strArr = str.split(",")
+        DepartureDelay(strArr(15), strArr(16), strArr(21))
+      }).toDF("DepDelay", "Origin", "Cancelled")
+
+    delayDF.show()
+    //Filter NA and cancelled records
+    delayDF = delayDF.filter(delayDF("Cancelled") !== "1")
+    delayDF = delayDF.filter(delayDF("DepDelay") !== "NA")
+
+    delayDF = castColumnTo(delayDF, "DepDelay", DoubleType)
+    // Get delayed departure as separate column with values as '1' - dealyed , '0' - not delayed
+    delayDF = delayDF.withColumn("isDepartureDelayed", when(col("DepDelay") > 0.0, 1).otherwise(0))
+//    delayDF = castColumnTo(delayDF, "isDepartureDelayed", IntegerType)
+
+    delayDF.show()
+    //Calculate delay percentage grouped by origin
+    val percentageDF =
+      delayDF.groupBy("Origin")
+        .agg(((sum("isDepartureDelayed")/count("isDepartureDelayed"))*100).alias("percentageDelay"))
+
+    val resultDF = percentageDF.filter(percentageDF("percentageDelay") > lit(threshold)).sort("percentageDelay")
+
+    println("Total Count: " + resultDF.count())
+
+    resultDF.show()
   }
 
   /**
