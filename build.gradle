@@ -54,6 +54,7 @@ dependencies {
     compile 'org.apache.spark:spark-catalyst_2.11:2.1.0'
     compile 'org.apache.spark:spark-streaming_2.11:2.1.0'
     compile 'org.apache.spark:spark-core_2.11:2.1.0'
+    compile 'org.apache.bahir:spark-streaming-twitter_2.11:2.0.0-preview'
 
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
 }

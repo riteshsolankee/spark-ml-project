@@ -1,15 +1,18 @@
 package com.util
 
 import org.apache.log4j.{Level, LogManager, Logger}
+//import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 
 trait InitSpark {
+//  val sparkConf = new SparkConf().setAppName("some-value")
   val spark: SparkSession =
     SparkSession.builder()
       .appName("Spark example")
       .master("local[*]")
       .config("option", "some-value")
       .getOrCreate()
+
 
   val sc = spark.sparkContext
 

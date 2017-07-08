@@ -3,7 +3,7 @@ package com.assignment.flightdata
 import com.util.InitSpark
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.{count, lit, sum, when,col}
-import org.apache.spark.sql.types.{DataType, DoubleType, IntegerType}
+import org.apache.spark.sql.types.{DataType, DoubleType}
 
 /**
   * Created by ritesh on 16/05/17.
@@ -15,7 +15,8 @@ object FlightDelayPercentageCaseClass extends InitSpark {
   def main(args: Array[String]) = {
     import spark.implicits._
 
-    val threshold = 50.00
+    //threshold for filter the delayed filght
+    val threshold = 70.00
     var data = sc.textFile("file:///Users/ritesh/Documents/DataScience/advanceBigData/Assignment1/2007.csv")
     data.take(10).foreach(println)
 
@@ -36,7 +37,6 @@ object FlightDelayPercentageCaseClass extends InitSpark {
     delayDF = castColumnTo(delayDF, "DepDelay", DoubleType)
     // Get delayed departure as separate column with values as '1' - dealyed , '0' - not delayed
     delayDF = delayDF.withColumn("isDepartureDelayed", when(col("DepDelay") > 0.0, 1).otherwise(0))
-//    delayDF = castColumnTo(delayDF, "isDepartureDelayed", IntegerType)
 
     delayDF.show()
     //Calculate delay percentage grouped by origin
@@ -44,11 +44,10 @@ object FlightDelayPercentageCaseClass extends InitSpark {
       delayDF.groupBy("Origin")
         .agg(((sum("isDepartureDelayed")/count("isDepartureDelayed"))*100).alias("percentageDelay"))
 
+    println("Total Count: " + percentageDF.count())
+
     val resultDF = percentageDF.filter(percentageDF("percentageDelay") > lit(threshold)).sort("percentageDelay")
-
-    println("Total Count: " + resultDF.count())
-
-    resultDF.show()
+    resultDF.show(resultDF.count().toInt,false)
   }
 
   /**

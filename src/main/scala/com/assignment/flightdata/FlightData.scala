@@ -16,33 +16,11 @@ object FlightData extends InitSpark{
 
 //    var flightData = sc.textFile("file:///Users/ritesh/Documents/DataScience/advanceBigData/Assignment1/2007.csv")
 
-    val threshold = 50.00
     val flightDF =
       reader.csv("/Users/ritesh/Documents/DataScience/advanceBigData/Assignment1/2007.csv")
     flightDF.show()
 
-    // Start - delaypercentage calculation
-    var delayDF = flightDF.select( "DepDelay","Origin","Cancelled")
-
-    delayDF = Util.castColumnTo(delayDF, "DepDelay", DoubleType)
-
-    delayDF = delayDF.filter($"Cancelled" !== "1")
-    delayDF = delayDF.filter($"ArrDelay" !== "NA")
-
-    delayDF = delayDF.withColumn("isDepartureDelayed", delayDF("DepDelay") > 0.0)
-
-    delayDF = Util.castColumnTo(delayDF, "isDepartureDelayed", IntegerType)
-
-    delayDF.show()
-    val resultDF =
-      delayDF.groupBy("Origin")
-        .agg(((sum("isDepartureDelayed")/count("isDepartureDelayed"))*100).alias("percentageDelay"))
-        .filter($"percentageDelay" > lit(threshold))
-
-    resultDF.show()
-    // End - Delay percentage calculation
-
-   /* var flightDelayDF =
+    var flightDelayDF =
       flightDF.select(
         "Year","Month", "DayofMonth", "DayOfWeek",
         "FlightNum","ArrDelay", "DepDelay","Origin","Cancelled",
@@ -134,7 +112,7 @@ object FlightData extends InitSpark{
         .mapValues{ case (sum, count) => (1.0 * sum) / count }
         .collectAsMap()
 
-    println("flightDepartureAverage :" + flightDepartureAverage)*/
+    println("flightDepartureAverage :" + flightDepartureAverage)
     // ****** End - Using RDD *******
   }
 }

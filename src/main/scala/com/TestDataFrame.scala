@@ -18,8 +18,13 @@ object TestDataFrame extends InitSpark {
 //    distData.take(2).foreach(println)
 
 
+    val str = "In this case for each element, an instance of the parser class will be created, the element will be processed and then the instance will be destroyed in time but this instance will not be used for other elements. So if you are working with an RDD of 12 elements distributed among 4 partitions, the parser instance will be created 12 times. And as you know creating an instance is a very expensive operation so it will take time."
 
-    /*lines.foreach(println)
+//    val lines = sc.parallelize(str.split(" "))
+
+    val lines = sc.textFile("file:///Users/ritesh/Documents/DataScience/advanceBigData/wordCount.txt")
+
+    lines.foreach(println)
 
     val lineLengths = lines.map(s => s.length)
 
@@ -93,31 +98,31 @@ object TestDataFrame extends InitSpark {
 
     val hockyTeams = sc.parallelize(List("wild", "blackhawks", "red wings", "wild", "oilers", "whales", "jets", "wild"))
 
-    println(hockyTeams.map(k => (k,1)).countByKey())*/
+    println(hockyTeams.map(k => (k,1)).countByKey())
 
     //==============
-//    val babyDF =
-//      reader.csv("/Users/ritesh/Documents/DataScience/advanceBigData/baby_names.csv")
-//
-////    babyDF.show()
-////    babyDF.select("First Name", "Count").show()
-//
-//    val babyRdd = babyDF.rdd.map(name => (name(1), name(4))).countByKey().take(10).foreach(println)
-//
-//    println(babyDF.rdd.map(name => (name(1), name(4))).countByKey().maxBy(value => value._2))
+    val babyDF =
+      reader.csv("/Users/ritesh/Documents/DataScience/advanceBigData/baby_names.csv")
+
+//    babyDF.show()
+//    babyDF.select("First Name", "Count").show()
+
+    val babyRdd = babyDF.rdd.map(name => (name(1), name(4))).countByKey().take(10).foreach(println)
+
+    println(babyDF.rdd.map(name => (name(1), name(4))).countByKey().maxBy(value => value._2))
     //========
 
-    val babyDF =
+    val babyDF1 =
           reader.csv("/Users/ritesh/Documents/DataScience/advanceBigData/baby_names.csv")
 
-    val babyJson = babyDF.toJSON
+    val babyJson = babyDF1.toJSON
 
     println(babyJson)
 
-    babyDF.toJSON.take(2).foreach(println)
+    babyDF1.toJSON.take(2).foreach(println)
 
 
-    babyDF.write.json("/Users/ritesh/Documents/DataScience/advanceBigData/baby")
+    babyDF1.write.json("/Users/ritesh/Documents/DataScience/advanceBigData/baby")
 
 
   }
