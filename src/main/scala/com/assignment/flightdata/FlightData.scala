@@ -14,13 +14,11 @@ object FlightData extends InitSpark{
   def main(args: Array[String]) = {
     import spark.implicits._
 
-//    var flightData = sc.textFile("file:///Users/ritesh/Documents/DataScience/advanceBigData/Assignment1/2007.csv")
-
     val flightDF =
       reader.csv("/Users/ritesh/Documents/DataScience/advanceBigData/Assignment1/2007.csv")
     flightDF.show()
 
-    var flightDelayDF =
+   var flightDelayDF =
       flightDF.select(
         "Year","Month", "DayofMonth", "DayOfWeek",
         "FlightNum","ArrDelay", "DepDelay","Origin","Cancelled",
